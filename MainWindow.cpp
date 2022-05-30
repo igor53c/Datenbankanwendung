@@ -5,6 +5,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    qtTranslator = new QTranslator(this);
+
+    if(qtTranslator->load("qt_de", QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+        QApplication::installTranslator(qtTranslator);
+
     ui->setupUi(this);
 
     init();
@@ -12,11 +17,27 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::init()
 {
+    plzWindow = nullptr;
+
+    ignoreClose = false;
+
     statusLabel = new QLabel(this);
 
     statusLabel->setIndent(5);
 
     statusBar()->addWidget(statusLabel, 1);
+
+    progressBar = new QProgressBar(this);
+
+    progressBar->setFixedWidth(200);
+
+    QString styleSheet = "QProgressBar { text-align: center; }";
+
+    progressBar->setStyleSheet(styleSheet);
+
+    progressBar->setVisible(false);
+
+    statusBar()->addPermanentWidget(progressBar);
 
     enableDatabase(openDatabase());
 }
@@ -82,13 +103,63 @@ void MainWindow::importPLZIntoDatabase(const QString &filename)
     int insertCounter = 0;
     int recordCounter = 0;
 
+    int msgValue;
+
+    qint64 progressValue = 0;
+    qint64 fileSize = 0;
+
     statusText = statusLabel->text();
+
+    stopImport = false;
+
+    ignoreClose = true;
+
+    ui->menubar->setEnabled(false);
+
+    if(PostleitzahlenDAO::getRowCount() > 0)
+    {
+        msgValue = QMessageBox::question(this, "PLZ importieren", "Gelöscht",
+                                         QMessageBox::Yes |QMessageBox::No | QMessageBox::Cancel,
+                                         QMessageBox::Cancel);
+
+        if(msgValue == QMessageBox::Cancel)
+            return;
+
+        if(msgValue == QMessageBox::Yes)
+        {
+            statusLabel->setText("Datensätze werden gelöscht...");
+
+            QApplication::processEvents();
+
+            PostleitzahlenDAO::deleteTable();
+        }
+    }
 
     ui->actionPLZImportiern->setEnabled(false);
 
-    statusLabel->setText("PLZ werden importieren...");
+    QApplication::processEvents();
+
+    statusLabel->setText("PLZ werden importiert. Abbrechen mit der ESC-Taste...");
 
     QApplication::processEvents();
+
+//    progressBar->setMinimum(0);
+
+//    progressBar->setMaximum(getRecordCount(filename));
+
+//    progressBar->setValue(0);
+
+//    progressBar->setVisible(true);
+
+    progressBar->setMinimum(0);
+
+    progressBar->setMaximum(100);
+
+    progressBar->setValue(0);
+
+    progressBar->setVisible(true);
+
+    fileSize = getFileSize(filename);
 
     QFile file(filename);
 
@@ -98,13 +169,34 @@ void MainWindow::importPLZIntoDatabase(const QString &filename)
 
         while(!in.atEnd())
         {
+            if(stopImport)
+            {
+                msgValue = QMessageBox::question(this, "PLZ importieren", "Abgebrochen",
+                                                 QMessageBox::Yes |QMessageBox::No, QMessageBox::No);
+
+                if(msgValue == QMessageBox::Yes)
+                    break;
+
+                stopImport = false;
+            }
+
             line = in.readLine();
 
             recordCounter++;
 
-            if(recordCounter % 1000 == 0)
+//            if(recordCounter % 100 == 0)
+//            {
+//                progressBar->setValue(recordCounter);
+
+//                QApplication::processEvents();
+//            }
+
+            progressValue += line.length() + 2;
+
+            if(recordCounter % 100 == 0)
             {
-                statusLabel->setText(QString::number(recordCounter));
+                progressBar->setValue(static_cast<int>(progressValue * 100 / fileSize));
+
                 QApplication::processEvents();
             }
 
@@ -130,18 +222,89 @@ void MainWindow::importPLZIntoDatabase(const QString &filename)
 
     statusLabel->setText(statusText);
 
+    progressBar->setVisible(false);
+
     ui->actionPLZImportiern->setEnabled(true);
+
+    ignoreClose = false;
+
+    ui->menubar->setEnabled(true);
+
+    QMessageBox::information(this, "PLZ importieren",
+                          QString::number(recordCounter) + ", " + QString::number(insertCounter));
+}
+
+int MainWindow::getRecordCount(const QString &filename)
+{
+    int retValue = 0;
+
+    QFile file(filename);
+
+    if(file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QTextStream in(&file);
+
+        while(in.atEnd())
+        {
+            in.readLine();
+
+            retValue++;
+        }
+
+        file.close();
+    }
+
+    return retValue;
+}
+
+qint64 MainWindow::getFileSize(const QString &filename)
+{
+    qint64 retValue = 0;
+
+    QFile file(filename);
+
+    if(file.open(QFile::ReadOnly))
+    {
+        retValue = file.size();
+
+        file.close();
+    }
+
+    return retValue;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    DAOLib::closeConnection();
+    if(ignoreClose)
+    {
+        event->ignore();
+    }
+    else
+    {
+        DAOLib::closeConnection();
 
-    event->accept();
+        event->accept();
+    }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Escape)
+        stopImport = true;
 }
 
 void MainWindow::on_actionPLZImportiern_triggered()
 {
     importPostleitzahlen();
+}
+
+
+void MainWindow::on_actionPostleitzahlen_triggered()
+{
+    delete plzWindow;
+
+    plzWindow = new PLZWindow(this);
+
+    plzWindow->show();
 }
 

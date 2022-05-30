@@ -5,9 +5,13 @@
 #include <QCloseEvent>
 #include <QDir>
 #include <QFileDialog>
+#include <QProgressBar>
+#include <QTranslator>
+#include <QLibraryInfo>
 
 #include "DAOLib.h"
 #include "PostleitzahlenDAO.h"
+#include "PLZWindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,16 +30,31 @@ private slots:
 
     void on_actionPLZImportiern_triggered();
 
+    void on_actionPostleitzahlen_triggered();
+
 private:
     Ui::MainWindow *ui;
 
+    PLZWindow* plzWindow;
+
     QLabel* statusLabel;
+
+    QProgressBar* progressBar;
+
+    QTranslator* qtTranslator;
+
+    bool stopImport;
+
+    bool ignoreClose;
 
     void init();
     bool openDatabase();
     void enableDatabase(bool bEnable);
     void importPostleitzahlen();
     void importPLZIntoDatabase(const QString &filename);
+    int getRecordCount(const QString&);
+    qint64 getFileSize(const QString&);
 
     void closeEvent(QCloseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 };
