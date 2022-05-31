@@ -39,6 +39,18 @@ void MainWindow::init()
 
     statusBar()->addPermanentWidget(progressBar);
 
+    cancelButton = new QPushButton(this);
+
+    cancelButton->setFixedSize(QSize(20, 20));
+
+    cancelButton->setToolTip("Lauffenden Prozess abbrechen");
+
+    connect(cancelButton, &QPushButton::clicked, this, &MainWindow::onImport_Cancel);
+
+    cancelButton->setVisible(false);
+
+    statusBar()->addPermanentWidget(cancelButton);
+
     enableDatabase(openDatabase());
 }
 
@@ -139,7 +151,7 @@ void MainWindow::importPLZIntoDatabase(const QString &filename)
 
     QApplication::processEvents();
 
-    statusLabel->setText("PLZ werden importiert. Abbrechen mit der ESC-Taste...");
+    statusLabel->setText("PLZ werden importiert...");
 
     QApplication::processEvents();
 
@@ -158,6 +170,8 @@ void MainWindow::importPLZIntoDatabase(const QString &filename)
     progressBar->setValue(0);
 
     progressBar->setVisible(true);
+
+    cancelButton->setVisible(true);
 
     fileSize = getFileSize(filename);
 
@@ -224,6 +238,8 @@ void MainWindow::importPLZIntoDatabase(const QString &filename)
 
     progressBar->setVisible(false);
 
+    cancelButton->setVisible(false);
+
     ui->actionPLZImportiern->setEnabled(true);
 
     ignoreClose = false;
@@ -287,17 +303,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if(event->key() == Qt::Key_Escape)
-        stopImport = true;
-}
-
 void MainWindow::on_actionPLZImportiern_triggered()
 {
     importPostleitzahlen();
 }
-
 
 void MainWindow::on_actionPostleitzahlen_triggered()
 {
@@ -308,3 +317,7 @@ void MainWindow::on_actionPostleitzahlen_triggered()
     plzWindow->show();
 }
 
+void MainWindow::onImport_Cancel()
+{
+    stopImport = true;
+}

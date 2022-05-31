@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PLZDialog</class>
+ <widget class="QDialog" name="PLZDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>514</width>
+    <height>188</height>
+   </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>Eintrag</string>
+  </property>
+  <widget class="QLabel" name="lblPLZ">
+   <property name="geometry">
+    <rect>
+     <x>25</x>
+     <y>35</y>
+     <width>63</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Postleitzahl</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="textPLZ">
+   <property name="geometry">
+    <rect>
+     <x>125</x>
+     <y>30</y>
+     <width>113</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="lblOrt">
+   <property name="geometry">
+    <rect>
+     <x>25</x>
+     <y>75</y>
+     <width>63</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ort</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="textOrt">
+   <property name="geometry">
+    <rect>
+     <x>125</x>
+     <y>70</y>
+     <width>361</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnSpeichern">
+   <property name="geometry">
+    <rect>
+     <x>105</x>
+     <y>140</y>
+     <width>120</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&amp;Speichern</string>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnAbbrechen">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>140</y>
+     <width>120</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&amp;Abbrechen</string>
+   </property>
+   <property name="autoDefault">
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

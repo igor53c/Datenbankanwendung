@@ -8,6 +8,7 @@
 #include <QProgressBar>
 #include <QTranslator>
 #include <QLibraryInfo>
+#include <QPushButton>
 
 #include "DAOLib.h"
 #include "PostleitzahlenDAO.h"
@@ -32,6 +33,8 @@ private slots:
 
     void on_actionPostleitzahlen_triggered();
 
+    void onImport_Cancel();
+
 private:
     Ui::MainWindow *ui;
 
@@ -42,6 +45,8 @@ private:
     QProgressBar* progressBar;
 
     QTranslator* qtTranslator;
+
+    QPushButton* cancelButton;
 
     bool stopImport;
 
@@ -56,5 +61,4 @@ private:
     qint64 getFileSize(const QString&);
 
     void closeEvent(QCloseEvent* event) override;
-    void keyPressEvent(QKeyEvent* event) override;
 };

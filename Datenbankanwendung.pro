@@ -9,16 +9,19 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    PLZDialog.cpp \
     PLZWindow.cpp \
     main.cpp \
     MainWindow.cpp
 
 HEADERS += \
     MainWindow.h \
+    PLZDialog.h \
     PLZWindow.h
 
 FORMS += \
     MainWindow.ui \
+    PLZDialog.ui \
     PLZWindow.ui
 
 # Default rules for deployment.
@@ -31,3 +34,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../build-DAOLib-Desktop
 
 INCLUDEPATH += $$PWD/../DAOLib
 DEPENDPATH += $$PWD/../DAOLib
+
+RESOURCES += \
+    Datenbankanwendung.qrc
